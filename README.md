@@ -2,6 +2,12 @@
 
 Simple shopping cart library implemented in PHP.
 
+[![Build Status](https://travis-ci.org/Theill11/Shoppingcart.svg)](https://travis-ci.org/Theill11/Shoppingcart)
+[![Dependency Status](https://www.versioneye.com/user/projects/54d6ad5a3ca0846cf4000002/badge.svg?style=flat)](https://www.versioneye.com/user/projects/54d6ad5a3ca0846cf4000002)
+[![Code Coverage](https://scrutinizer-ci.com/g/Theill11/Shoppingcart/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Theill11/Shoppingcart/)
+[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/Theill11/Shoppingcart/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Theill11/Shoppingcart/)
+[![Code Climate](https://codeclimate.com/github/Theill11/Shoppingcart/badges/gpa.svg)](https://codeclimate.com/github/Theill11/Shoppingcart)
+
 ## Installation
 
 TODO: Describe the installation process
