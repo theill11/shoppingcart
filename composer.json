@@ -1,0 +1,28 @@
+{
+  "name": "theill11/mytest",
+  "description": "description_text",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Johnny Theill",
+      "email": "j.theill@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Theill11\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Theill11\\Tests\\": "tests/"
+    }
+  },
+  "require": {
+    "symfony/http-foundation": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.4"
+  }
+}
