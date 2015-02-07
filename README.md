@@ -27,6 +27,7 @@ TODO: Write history
 Inspiration taken from the following repositories:
 
 [sashaaro/ShoppingCart](https://github.com/sashaaro/ShoppingCart)
+
 [leaphly/cart](https://github.com/leaphly/cart)
 
 ## License
