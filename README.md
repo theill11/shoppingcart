@@ -2,11 +2,11 @@
 
 Simple shopping cart library implemented in PHP.
 
-[![Build Status](https://travis-ci.org/Theill11/Shoppingcart.svg)](https://travis-ci.org/Theill11/Shoppingcart)
+[![Build Status](https://travis-ci.org/theill11/shoppingcart.svg)](https://travis-ci.org/theill11/shoppingcart)
 [![Dependency Status](https://www.versioneye.com/user/projects/54d6ad5a3ca0846cf4000002/badge.svg?style=flat)](https://www.versioneye.com/user/projects/54d6ad5a3ca0846cf4000002)
-[![Code Coverage](https://scrutinizer-ci.com/g/Theill11/Shoppingcart/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Theill11/Shoppingcart/)
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/Theill11/Shoppingcart/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Theill11/Shoppingcart/)
-[![Code Climate](https://codeclimate.com/github/Theill11/Shoppingcart/badges/gpa.svg)](https://codeclimate.com/github/Theill11/Shoppingcart)
+[![Code Coverage](https://scrutinizer-ci.com/g/theill11/shoppingcart/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/theill11/shoppingcart/)
+[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/theill11/shoppingcart/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/theill11/shoppingcart/)
+[![Code Climate](https://codeclimate.com/github/theill11/shoppingcart/badges/gpa.svg)](https://codeclimate.com/github/theill11/shoppingcart)
 
 [![Latest Stable Version](https://poser.pugx.org/theill11/shoppingcart/v/stable.svg)](https://packagist.org/packages/theill11/shoppingcart)
 [![Total Downloads](https://poser.pugx.org/theill11/shoppingcart/downloads.svg)](https://packagist.org/packages/theill11/shoppingcart)
@@ -43,4 +43,4 @@ Inspiration taken from the following repositories:
 
 ## License
 
-Theill11/Shoppingcart is released under the MIT License. See the bundled [LICENSE.md](LICENSE.md) for details.
+theill11/shoppingcart is released under the MIT License. See the bundled [LICENSE.md](LICENSE.md) for details.
