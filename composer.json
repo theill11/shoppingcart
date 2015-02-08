@@ -1,14 +1,29 @@
 {
-  "name": "theill11/mytest",
-  "description": "description_text",
-  "minimum-stability": "stable",
-  "license": "proprietary",
+  "name": "Theill11/Shoppingcart",
+  "description": "Lightweight Shopping Cart implemented in PHP",
+  "keywords": [
+    "php",
+    "shopping cart"
+  ],
+  "license": "MIT",
   "authors": [
     {
       "name": "Johnny Theill",
       "email": "j.theill@gmail.com"
     }
   ],
+  "support": {
+    "issues": "https://github.com/Theill11/Shoppingcart/issues",
+    "source": "https://github.com/Theill11/Shoppingcart"
+  },
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=5.4.0",
+    "symfony/http-foundation": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.5"
+  },
   "autoload": {
     "psr-4": {
       "Theill11\\": "src/"
@@ -18,11 +33,5 @@
     "psr-4": {
       "Theill11\\Tests\\": "tests/"
     }
-  },
-  "require": {
-    "symfony/http-foundation": "*"
-  },
-  "require-dev": {
-    "phpunit/phpunit": "~4.4"
   }
 }
