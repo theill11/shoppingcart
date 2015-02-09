@@ -33,5 +33,10 @@
     "psr-4": {
       "Theill11\\Tests\\": "tests/"
     }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    }
   }
 }
