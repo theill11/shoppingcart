@@ -21,7 +21,7 @@ install:
   - travis_retry composer require codeclimate/php-test-reporter --dev
 
 script:
-  - vendor/bin/phpunit --verbose --coverage-clover=build/logs/clover.xml
+  - vendor/bin/phpunit --verbose --coverage-clover=build/logs/clover.xml --coverage-text
 
 after_script:
   - travis_retry wget https://scrutinizer-ci.com/ocular.phar
