@@ -25,61 +25,53 @@ class SessionStorage implements StorageInterface
 
     public function get($id)
     {
-        $cache = $this->session->get($this->key, []);
+        $cache = $this->all();
         if (isset($cache[$id])) {
-            $item = $cache[$id];
-            if ($item instanceof ItemInterface) {
-                return $item;
-            }
+            return $cache[$id];
         }
         return null;
     }
 
     public function remove($id)
     {
-        $cache = $this->session->get($this->key, []);
+        $cache = $this->all();
         if (isset($cache[$id])) {
-            $item = $cache[$id];
-            if ($item instanceof ItemInterface) {
-                unset($cache[$id]);
-                $this->session->set($this->key, $cache);
-                return true;
-            }
+            unset($cache[$id]);
+            $this->setSession($cache);
+            return true;
         }
         return false;
     }
 
     public function has($id)
     {
-        $cache = $this->session->get($this->key, []);
-        return isset($cache[$id]) && $cache[$id] instanceof ItemInterface;
+        $cache = $this->all();
+        return isset($cache[$id]);
     }
 
 
     public function set(ItemInterface $newItem)
     {
-        $cache = $this->session->get($this->key, []);
+        $cache = $this->all();
         $newItemId = $newItem->getId();
         $cache[$newItemId] = ($newItem);
-        $this->session->set($this->key, $cache);
+        $this->setSession($cache);
     }
 
     public function add(ItemInterface $newItem)
     {
-        $cache = $this->session->get($this->key, []);
+        $cache = $this->all();
         $newItemId = $newItem->getId();
         if (isset($cache[$newItemId])) {
+            /** @var \Theill11\Cart\ItemInterface $oldItem */
             $oldItem = $cache[$newItemId];
-            if ($oldItem instanceof ItemInterface === false) {
-                return false;
-            }
             $newQty = $oldItem->getQuantity() + $newItem->getQuantity();
             $oldItem->setQuantity($newQty);
             $cache[$oldItem->getId()] = ($oldItem);
         } else {
             $cache[$newItemId] = $newItem;
         }
-        $this->session->set($this->key, $cache);
+        $this->setSession($cache);
         return true;
     }
 
@@ -97,5 +89,10 @@ class SessionStorage implements StorageInterface
     public function clear()
     {
         $this->session->remove($this->key);
+    }
+
+    protected function setSession($cache)
+    {
+        $this->session->set($this->key, $cache);
     }
 }

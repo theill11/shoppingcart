@@ -46,9 +46,9 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
         $storage = new SessionStorage($mock, $this->key);
 
         $this->assertNull($storage->get(null));
+        $this->assertNull($storage->get(0));
         $this->assertNull($storage->get(1));
-        $this->assertNull($storage->get(1));
-        $this->assertSame($item2, $storage->get(2));
+        $this->assertInstanceOf('Theill11\Cart\ItemInterface', $storage->get(2));
     }
 
     public function testRemove()
@@ -153,7 +153,7 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
             );
 
         $mock
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(3))
             ->method('set')
             ->withConsecutive(
                 [$this->key, [1 => $item1]]
@@ -161,11 +161,10 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
 
         $storage = new SessionStorage($mock, $this->key);
         $this->assertTrue($storage->add($item1));
-        $this->assertFalse($storage->add($item2));
+        $this->assertTrue($storage->add($item2));
         // add Item with an id which already is added
         // TODO: test quantity is added correct
         $this->assertTrue($storage->add($item3));
-
     }
 
     public function testAll()
