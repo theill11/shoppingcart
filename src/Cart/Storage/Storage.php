@@ -14,10 +14,7 @@ abstract class Storage implements StorageInterface
     public function get($id)
     {
         $cache = $this->all();
-        if (isset($cache[$id])) {
-            return $cache[$id];
-        }
-        return null;
+        return isset($cache[$id]) ? $cache[$id] : null;
     }
 
     public function remove($id)
