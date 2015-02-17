@@ -6,6 +6,7 @@
 
 namespace Theill11\Tests\Cart\Storage;
 
+use Symfony\Component\HttpFoundation\Cookie;
 use Theill11\Cart\Item;
 use Theill11\Cart\Storage\CookieStorage;
 
@@ -115,33 +116,29 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
     {
         $callOne = function ($subject) {
             return
-                is_callable([$subject, 'getName'])
+                $subject instanceof Cookie
                 && $subject->getName() === $this->name
-                && is_callable([$subject, 'getValue'])
                 && $subject->getValue() === serialize([1 => $this->items['item1']]);
         };
 
         $callTwo = function($subject) {
             return
-                is_callable([$subject, 'getName'])
+                $subject instanceof Cookie
                 && $subject->getName() === $this->name
-                && is_callable([$subject, 'getValue'])
                 && $subject->getValue() === serialize([2 => $this->items['item2'], 1 => $this->items['item1']]);
         };
 
         $callThree = function($subject) {
             return
-                is_callable([$subject, 'getName'])
+                $subject instanceof Cookie
                 && $subject->getName() === $this->name
-                && is_callable([$subject, 'getValue'])
                 && $subject->getValue() === serialize([1 => $this->items['item1']]);
         };
 
         $callFour = function($subject) {
             return
-                is_callable([$subject, 'getName'])
+                $subject instanceof Cookie
                 && $subject->getName() === $this->name
-                && is_callable([$subject, 'getValue'])
                 && $subject->getValue() === serialize([1 => $this->items['item1'], 2 => $this->items['item2']]);
         };
 
@@ -173,25 +170,22 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
             $item1 = clone $this->items['item1'];
             $item1->setQuantity(20);
             return
-                is_callable([$subject, 'getName'])
+                $subject instanceof Cookie
                 && $subject->getName() === $this->name
-                && is_callable([$subject, 'getValue'])
                 && $subject->getValue() === serialize([1 => $item1]);
         };
 
         $callTwo = function ($subject) {
             return
-                is_callable([$subject, 'getName'])
+                $subject instanceof Cookie
                 && $subject->getName() === $this->name
-                && is_callable([$subject, 'getValue'])
                 && $subject->getValue() === serialize([2 => $this->items['item2'], 1 => $this->items['item1']]);
         };
 
         $callThree = function($subject) {
             return
-                is_callable([$subject, 'getName'])
+                $subject instanceof Cookie
                 && $subject->getName() === $this->name
-                && is_callable([$subject, 'getValue'])
                 && $subject->getValue() === serialize([1 => $this->items['item1']]);
         };
 
@@ -199,9 +193,8 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
             $item1 = clone $this->items['item1'];
             $item1->setQuantity(20);
             return
-                is_callable([$subject, 'getName'])
+                $subject instanceof Cookie
                 && $subject->getName() === $this->name
-                && is_callable([$subject, 'getValue'])
                 && $subject->getValue() === serialize([1 => $item1, 2 => $this->items['item2']]);
         };
 
