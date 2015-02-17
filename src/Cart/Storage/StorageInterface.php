@@ -57,4 +57,6 @@ interface StorageInterface
      */
     public function clear();
 
+    public function persist($cache);
+
 }

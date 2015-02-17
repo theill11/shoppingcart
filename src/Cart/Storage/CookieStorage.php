@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Theill11\Cart\ItemInterface;
 
-class CookieStorage implements StorageInterface
+class CookieStorage extends Storage
 {
     /** @var string name of the Cookie */
     protected $name;
@@ -27,57 +27,6 @@ class CookieStorage implements StorageInterface
         $this->request = $request;
         $this->response = $response;
         $this->name = $name;
-    }
-
-    public function get($id)
-    {
-        $cache = $this->all();
-        if (isset($cache[$id])) {
-            return $cache[$id];
-        }
-        return null;
-    }
-
-    public function remove($id)
-    {
-        $cache = $this->all();
-        if (isset($cache[$id])) {
-            unset($cache[$id]);
-            $this->setCookie($cache);
-            return true;
-        }
-        return false;
-    }
-
-    public function has($id)
-    {
-        $cache = $this->all();
-        return isset($cache[$id]);
-    }
-
-
-    public function set(ItemInterface $newItem)
-    {
-        $cache = $this->all();
-        $newItemId = $newItem->getId();
-        $cache[$newItemId] = $newItem;
-        $this->setCookie($cache);
-    }
-
-    public function add(ItemInterface $newItem)
-    {
-        $cache = $this->all();
-        $newItemId = $newItem->getId();
-        if (isset($cache[$newItemId])) {
-            /** @var \Theill11\Cart\ItemInterface $oldItem */
-            $oldItem = $cache[$newItemId];
-            $newQty = $oldItem->getQuantity() + $newItem->getQuantity();
-            $oldItem->setQuantity($newQty);
-            $cache[$oldItem->getId()] = $oldItem;
-        } else {
-            $cache[$newItemId] = $newItem;
-        }
-        $this->setCookie($cache);
     }
 
     public function all()
@@ -100,7 +49,7 @@ class CookieStorage implements StorageInterface
         $this->response->headers->clearCookie($this->name);
     }
 
-    protected function setCookie($content)
+    public function persist($content)
     {
         $cookie = new Cookie($this->name, serialize($content));
         $this->response->headers->setCookie($cookie);
