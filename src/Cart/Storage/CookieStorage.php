@@ -33,10 +33,7 @@ class CookieStorage implements StorageInterface
     {
         $cache = $this->all();
         if (isset($cache[$id])) {
-            $item = $cache[$id];
-            if ($item instanceof ItemInterface && $item->getId() === $id) {
-                return $item;
-            }
+            return $cache[$id];
         }
         return null;
     }
@@ -45,19 +42,17 @@ class CookieStorage implements StorageInterface
     {
         $cache = $this->all();
         if (isset($cache[$id])) {
-            $item = $cache[$id];
-            if ($item instanceof ItemInterface && $item->getId() === $id) {
-                unset($cache[$id]);
-                $this->setCookie($cache);
-                return true;
-            }
+            unset($cache[$id]);
+            $this->setCookie($cache);
+            return true;
         }
         return false;
     }
 
     public function has($id)
     {
-        return isset($this->all()[$id]);
+        $cache = $this->all();
+        return isset($cache[$id]);
     }
 
 
@@ -74,11 +69,8 @@ class CookieStorage implements StorageInterface
         $cache = $this->all();
         $newItemId = $newItem->getId();
         if (isset($cache[$newItemId])) {
-            /** @var \Theill11\Cart\Item $oldItem */
+            /** @var \Theill11\Cart\ItemInterface $oldItem */
             $oldItem = $cache[$newItemId];
-            if ($oldItem instanceof ItemInterface === false) {
-                return false;
-            }
             $newQty = $oldItem->getQuantity() + $newItem->getQuantity();
             $oldItem->setQuantity($newQty);
             $cache[$oldItem->getId()] = $oldItem;
@@ -91,11 +83,17 @@ class CookieStorage implements StorageInterface
 
     public function all()
     {
+        $result = [];
         $cookie = $this->request->cookies->get($this->name);
         if ($cookie) {
-            return unserialize($cookie);
+            $items = unserialize($cookie);
+            foreach ($items as $item) {
+                if ($item instanceof ItemInterface) {
+                    $result[$item->getId()] = $item;
+                }
+            }
         }
-        return [];
+        return $result;
     }
 
     public function clear()
