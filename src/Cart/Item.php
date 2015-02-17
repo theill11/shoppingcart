@@ -31,7 +31,7 @@ class Item implements ItemInterface
      */
     public function __construct(array $options = [])
     {
-        if ($options) {
+        if (!empty($options)) {
             $this->configure($options);
         }
     }
@@ -76,8 +76,7 @@ class Item implements ItemInterface
      */
     public function setId($id)
     {
-        $options = ['options' => ['min_range' => 0, 'max_range' => PHP_INT_MAX]];
-        if (false === filter_var($id, FILTER_VALIDATE_INT, $options)) {
+        if (false === $this->validateInteger($id)) {
             throw new \InvalidArgumentException('Id must be an integer and not negative');
         }
         $this->id = (int) $id;
@@ -97,7 +96,7 @@ class Item implements ItemInterface
      */
     public function setName($name)
     {
-        if (!is_string($name) || strlen($name) < 1) {
+        if (false === $this->validateString($name)) {
             throw new \InvalidArgumentException('Name must be a string with at least one character');
         }
         $this->name = (string) $name;
@@ -117,8 +116,7 @@ class Item implements ItemInterface
      */
     public function setQuantity($quantity)
     {
-        $options = ['options' => ['min_range' => 0, 'max_range' => PHP_INT_MAX]];
-        if (false === filter_var($quantity, FILTER_VALIDATE_INT, $options)) {
+        if (false === $this->validateInteger($quantity)) {
             throw new \InvalidArgumentException('Quantity must be an integer and not negative');
         }
         $this->quantity = (int) $quantity;
@@ -138,8 +136,7 @@ class Item implements ItemInterface
      */
     public function setPrice($price)
     {
-        $options = ['options' => ['decimal' => '.']];
-        if (false === filter_var($price, FILTER_VALIDATE_FLOAT, $options) || $price < 0) {
+        if (false === $this->validateFloat($price)) {
             throw new \InvalidArgumentException('Price must be numeric and not negative');
         }
         $this->price = (float) $price;
