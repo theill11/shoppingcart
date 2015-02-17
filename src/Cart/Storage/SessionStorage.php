@@ -72,7 +72,6 @@ class SessionStorage implements StorageInterface
             $cache[$newItemId] = $newItem;
         }
         $this->setSession($cache);
-        return true;
     }
 
     public function all()

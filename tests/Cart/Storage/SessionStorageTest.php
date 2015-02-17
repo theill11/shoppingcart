@@ -14,68 +14,69 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
 
     public $key = '_test-key';
 
+    protected $items = [];
+
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->items['item1'] = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
+        $this->items['item2'] = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
+        $this->items['item3'] = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
+    }
+
     protected function getSessionMock()
     {
         return $this->getMockBuilder('Symfony\Component\HttpFoundation\Session\SessionInterface')->getMock();
+    }
+
+    protected function getSessionMockConfigured()
+    {
+        $mock =  $this->getSessionMock();
+        $mock
+            ->expects($this->exactly(5))
+            ->method('get')
+            ->with($this->key, [])
+            ->willReturnOnConsecutiveCalls(
+                [[]],
+                [1 => $this->items['item1']],
+                [2 => $this->items['item2']],
+                [1 => new \stdClass()],
+                [1 => $this->items['item1'], 2 => $this->items['item2']]
+            );
+        return $mock;
     }
 
     public function testCanInstantiate()
     {
         $mock = $this->getSessionMock();
         $storage = new SessionStorage($mock, $this->key);
+
         $this->assertInstanceOf('Theill11\Cart\Storage\SessionStorage', $storage);
     }
 
     public function testGet()
     {
-        $item1 = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
-        $item2 = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
-
-        $mock = $this->getSessionMock();
-        $mock
-            ->expects($this->exactly(4))
-            ->method('get')
-            ->with($this->key, [])
-            ->willReturnOnConsecutiveCalls(
-                [1 => $item1],
-                [2 => $item2],
-                [1 => new \stdClass()],
-                [1 => $item1, 2 => $item2]
-            );
-
+        $mock = $this->getSessionMockConfigured();
         $storage = new SessionStorage($mock, $this->key);
 
         $this->assertNull($storage->get(null));
         $this->assertNull($storage->get(0));
+        $this->assertNull($storage->get(1));
         $this->assertNull($storage->get(1));
         $this->assertInstanceOf('Theill11\Cart\ItemInterface', $storage->get(2));
     }
 
     public function testRemove()
     {
-        $item1 = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
-        $item2 = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
-
-        $mock = $this->getSessionMock();
-        $mock
-            ->expects($this->exactly(4))
-            ->method('get')
-            ->with($this->key, [])
-            ->willReturnOnConsecutiveCalls(
-                [1 => $item1],
-                [2 => $item2],
-                [1 => new \stdClass()],
-                [1 => $item1, 2 => $item2]
-            );
-
+        $mock = $this->getSessionMockConfigured();
         $mock
             ->expects($this->once())
             ->method('set')
-            ->with($this->key, [2 => $item2]);
-
+            ->with($this->key, [2 => $this->items['item2']]);
         $storage = new SessionStorage($mock, $this->key);
 
         $this->assertFalse($storage->remove(null));
+        $this->assertFalse($storage->remove(0));
         $this->assertFalse($storage->remove(1));
         $this->assertFalse($storage->remove(1));
         $this->assertTrue($storage->remove(1));
@@ -83,19 +84,11 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
 
     public function testHas()
     {
-        $item1 = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
-        $item2 = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
-
-        $mock = $this->getSessionMock();
-        $mock
-            ->expects($this->exactly(4))
-            ->method('get')
-            ->with($this->key, [])
-            ->willReturnOnConsecutiveCalls([1 => $item1], [2 => $item2], [1 => new \stdClass()], [1 => $item1]);
-
+        $mock = $this->getSessionMockConfigured();
         $storage = new SessionStorage($mock, $this->key);
 
         $this->assertFalse($storage->has(null));
+        $this->assertFalse($storage->has(0));
         $this->assertFalse($storage->has(1));
         $this->assertFalse($storage->has(1));
         $this->assertTrue($storage->has(1));
@@ -103,88 +96,56 @@ class SessionStorageTest extends \PHPUnit_Framework_TestCase
 
     public function testSet()
     {
-        $item1 = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
-        $item2 = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
-
-        $mock = $this->getSessionMock();
+        $mock = $this->getSessionMockConfigured();
         $mock
-            ->expects($this->exactly(3))
-            ->method('get')
-            ->with($this->key, [])
-            ->willReturnOnConsecutiveCalls(
-                [],
-                [1 => $item1],
-                [1 => $item1, 2 => $item2],
-                [1 => $item1, 2 => $item2]
-            );
-
-        $mock
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(5))
             ->method('set')
             ->withConsecutive(
-                [$this->key, [1 => $item1]],
-                [$this->key, [1 => $item1, 2 => $item2]],
-                [$this->key, [1 => $item1, 2 => $item2]]
+                [$this->key, [1 => $this->items['item1']]],
+                [$this->key, [1 => $this->items['item1'], 2 => $this->items['item2']]],
+                [$this->key, [2 => $this->items['item2'], 1 => $this->items['item1']]],
+                [$this->key, [1 => $this->items['item1']]],
+                [$this->key, [1 => $this->items['item1'], 2 => $this->items['item2']]]
             );
-
         $storage = new SessionStorage($mock, $this->key);
 
-        $storage->set($item1);
-        $storage->set($item2);
-        $storage->set($item2);
+        $storage->set($this->items['item1']);
+        $storage->set($this->items['item2']);
+        $storage->set($this->items['item1']);
+        $storage->set($this->items['item1']);
+        $storage->set($this->items['item3']);
     }
 
     public function testAdd()
     {
-        $item1 = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
-        $item2 = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
-        // same as above
-        $item3 = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
-
-        $mock = $this->getSessionMock();
+        $mock = $this->getSessionMockConfigured();
         $mock
-            ->expects($this->exactly(3))
-            ->method('get')
-            ->with($this->key, [])
-            ->willReturnOnConsecutiveCalls(
-                [],
-                [1 => $item1, 2 => new \stdClass()],
-                [1 => $item1, 2 => $item2]
-            );
-
-        $mock
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(5))
             ->method('set')
             ->withConsecutive(
-                [$this->key, [1 => $item1]]
+                [$this->key, [1 => $this->items['item1']]],
+                [$this->key, [1 => $this->items['item1'], 2 => $this->items['item2']]],
+                [$this->key, [2 => $this->items['item2'], 1 => $this->items['item1']]],
+                [$this->key, [1 => $this->items['item1']]],
+                [$this->key, [1 => $this->items['item1'], 2 => $this->items['item2']]]
             );
-
         $storage = new SessionStorage($mock, $this->key);
-        $this->assertTrue($storage->add($item1));
-        $this->assertTrue($storage->add($item2));
-        // add Item with an id which already is added
-        // TODO: test quantity is added correct
-        $this->assertTrue($storage->add($item3));
+
+        $storage->add($this->items['item1']);
+        $storage->add($this->items['item2']);
+        $storage->add($this->items['item1']);
+        $storage->add($this->items['item1']);
+        $storage->add($this->items['item3']);
     }
 
     public function testAll()
     {
-        $item1 = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
-        $item2 = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
-
-        $mock = $this->getSessionMock();
-        $mock
-            ->expects($this->exactly(3))
-            ->method('get')
-            ->with($this->key, [])
-            ->willReturnOnConsecutiveCalls(
-                [],
-                [1 => new \stdClass()],
-                [1 => $item1, 2 => $item2]
-            );
+        $mock = $this->getSessionMockConfigured();
         $storage = new SessionStorage($mock, $this->key);
 
         $this->assertEquals(0, count($storage->all()));
+        $this->assertEquals(1, count($storage->all()));
+        $this->assertEquals(1, count($storage->all()));
         $this->assertEquals(0, count($storage->all()));
         $this->assertEquals(2, count($storage->all()));
     }
