@@ -13,13 +13,39 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
 {
     public $name = '_test-name';
 
+    protected $items = [];
+
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->items['item1'] = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
+        $this->items['item2'] = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
+        $this->items['item3'] = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
+    }
+
     protected function getRequestMock()
     {
+        return $this->getMockBuilder('Symfony\Component\HttpFoundation\Request')->getMock();
+    }
+
+    protected function getRequestMockConfigured()
+    {
         $bagMock = $this->getBagMock();
+        $bagMock
+            ->expects($this->exactly(4))
+            ->method('get')
+            ->with($this->name)
+            ->willReturnOnConsecutiveCalls(
+                serialize([1 => $this->items['item1']]),
+                serialize([2 => $this->items['item2']]),
+                serialize([1 => new \stdClass()]),
+                serialize([1 => $this->items['item1'], 2 => $this->items['item2']])
+            );
         $mock = $this->getMockBuilder('Symfony\Component\HttpFoundation\Request')->getMock();
         $mock->cookies = $bagMock;
         return $mock;
     }
+
     protected function getResponseMock()
     {
         return $this->getMockBuilder('Symfony\Component\HttpFoundation\Response')->getMock();
@@ -45,25 +71,8 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
 
     public function testGet()
     {
-        $item1 = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
-        $item2 = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
-
-        $bagMock = $this->getBagMock();
-        $bagMock
-            ->expects($this->exactly(4))
-            ->method('get')
-            ->with($this->name)
-            ->willReturnOnConsecutiveCalls(
-                serialize([1 => $item1]),
-                serialize([2 => $item2]),
-                serialize([1 => new \stdClass()]),
-                serialize([1 => $item1, 2 => $item2])
-            );
-        $requestMock = $this->getRequestMock();
-        $requestMock->cookies = $bagMock;
-
+        $requestMock = $this->getRequestMockConfigured();
         $responseMock = $this->getResponseMock();
-
         $storage = new CookieStorage($requestMock, $responseMock, $this->name);
 
         $this->assertNull($storage->get(null));
@@ -74,32 +83,14 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
 
     public function testRemove()
     {
-        $item1 = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
-        $item2 = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
-
-        $bagMock = $this->getBagMock();
-        $bagMock->expects($this->any())
-            ->method('get')
-            ->with($this->name)
-            ->willReturnOnConsecutiveCalls(
-                serialize([1 => $item1]),
-                serialize([2 => $item2]),
-                serialize([1 => new \stdClass()]),
-                serialize([1 => $item1, 2 => $item2])
-            );
-
+        $requestMock = $this->getRequestMockConfigured();
+        $responseMock = $this->getResponseMock();
         $headerMock = $this->getHeaderMock();
         $headerMock
             ->expects($this->once())
             ->method('setCookie')
             ->with($this->isInstanceOf('Symfony\Component\HttpFoundation\Cookie'));
-
-        $requestMock = $this->getRequestMock();
-        $requestMock->cookies = $bagMock;
-
-        $responseMock = $this->getResponseMock();
         $responseMock->headers = $headerMock;
-
         $storage = new CookieStorage($requestMock, $responseMock, $this->name);
 
         $this->assertFalse($storage->remove(null));
@@ -110,25 +101,8 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
 
     public function testHas()
     {
-        $item1 = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
-        $item2 = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
-
-        $bagMock = $this->getBagMock();
-        $bagMock->expects($this->any())
-            ->method('get')
-            ->with($this->name)
-            ->willReturnOnConsecutiveCalls(
-                serialize([1 => $item1]),
-                serialize([2 => $item2]),
-                serialize([1 => new \stdClass()]),
-                serialize([1 => $item1, 2 => $item2])
-            );
-
-        $requestMock = $this->getRequestMock();
-        $requestMock->cookies = $bagMock;
-
+        $requestMock = $this->getRequestMockConfigured();
         $responseMock = $this->getResponseMock();
-
         $storage = new CookieStorage($requestMock, $responseMock, $this->name);
 
         $this->assertFalse($storage->has(null));
@@ -139,181 +113,145 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
 
     public function testSet()
     {
-        $item1 = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
-        $item2 = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
-
-        $bagMock = $this->getBagMock();
-        $bagMock->expects($this->any())
-            ->method('get')
-            ->with($this->name)
-            ->willReturnOnConsecutiveCalls(
-                serialize([]),
-                serialize([1 => $item1]),
-                serialize([1 => $item1, 2 => $item2]),
-                serialize([1 => $item1, 2 => $item2])
-            );
-
-        $callOne = function ($subject) use ($item1) {
+        $callOne = function ($subject) {
             return
-                is_callable([$subject, 'getName']) &&
-                $subject->getName() === $this->name &&
-                is_callable([$subject, 'getValue']) &&
-                $subject->getValue() === serialize([1 => $item1]);
+                is_callable([$subject, 'getName'])
+                && $subject->getName() === $this->name
+                && is_callable([$subject, 'getValue'])
+                && $subject->getValue() === serialize([1 => $this->items['item1']]);
         };
 
-        $callTwo = function($subject) use ($item1, $item2) {
+        $callTwo = function($subject) {
             return
-                is_callable([$subject, 'getName']) &&
-                $subject->getName() === $this->name &&
-                is_callable([$subject, 'getValue']) &&
-                $subject->getValue() === serialize([1 => $item1, 2 => $item2]);
+                is_callable([$subject, 'getName'])
+                && $subject->getName() === $this->name
+                && is_callable([$subject, 'getValue'])
+                && $subject->getValue() === serialize([2 => $this->items['item2'], 1 => $this->items['item1']]);
         };
 
-        $callThree = function($subject) use ($item1, $item2) {
+        $callThree = function($subject) {
             return
-                is_callable([$subject, 'getName']) &&
-                $subject->getName() === $this->name &&
-                is_callable([$subject, 'getValue']) &&
-                $subject->getValue() === serialize([1 => $item1, 2 => $item2]);
+                is_callable([$subject, 'getName'])
+                && $subject->getName() === $this->name
+                && is_callable([$subject, 'getValue'])
+                && $subject->getValue() === serialize([1 => $this->items['item1']]);
+        };
+
+        $callFour = function($subject) {
+            return
+                is_callable([$subject, 'getName'])
+                && $subject->getName() === $this->name
+                && is_callable([$subject, 'getValue'])
+                && $subject->getValue() === serialize([1 => $this->items['item1'], 2 => $this->items['item2']]);
         };
 
         $headerMock = $this->getHeaderMock();
         $headerMock
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(4))
             ->method('setCookie')
             ->withConsecutive(
                 [$this->callback($callOne)],
                 [$this->callback($callTwo)],
-                [$this->callback($callThree)]
-            )
-        ;
+                [$this->callback($callThree)],
+                [$this->callback($callFour)]
+            );
 
-        $requestMock = $this->getRequestMock();
-        $requestMock->cookies = $bagMock;
-
+        $requestMock = $this->getRequestMockConfigured();
         $responseMock = $this->getResponseMock();
         $responseMock->headers = $headerMock;
-
         $storage = new CookieStorage($requestMock, $responseMock, $this->name);
 
-        $storage->set($item1);
-        $storage->set($item2);
-        $storage->set($item2);
+        $storage->set($this->items['item1']);
+        $storage->set($this->items['item1']);
+        $storage->set($this->items['item1']);
+        $storage->set($this->items['item3']);
     }
 
     public function testAdd()
     {
-        $item1 = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
-        $item2 = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
-        // same as above
-        $item3 = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
-
-        $bagMock = $this->getBagMock();
-        $bagMock->expects($this->exactly(3))
-            ->method('get')
-            ->with($this->name)
-            ->willReturnOnConsecutiveCalls(
-                serialize([]),
-                serialize([1 => $item1, 2 => new \stdClass()]),
-                serialize([1 => $item1, 2 => $item2])
-            );
-
-        $callOne = function ($subject) use ($item1) {
+        $callOne = function ($subject) {
+            $item1 = clone $this->items['item1'];
+            $item1->setQuantity(20);
             return
-                is_callable([$subject, 'getName']) &&
-                $subject->getName() === $this->name &&
-                is_callable([$subject, 'getValue']) &&
-                $subject->getValue() === serialize([1 => $item1]);
+                is_callable([$subject, 'getName'])
+                && $subject->getName() === $this->name
+                && is_callable([$subject, 'getValue'])
+                && $subject->getValue() === serialize([1 => $item1]);
         };
 
-        $callTwo = function ($subject) use ($item1, $item2) {
+        $callTwo = function ($subject) {
             return
-                is_callable([$subject, 'getName']) &&
-                $subject->getName() === $this->name &&
-                is_callable([$subject, 'getValue']) &&
-                $subject->getValue() === serialize([1 => $item1, 2 => $item2]);
+                is_callable([$subject, 'getName'])
+                && $subject->getName() === $this->name
+                && is_callable([$subject, 'getValue'])
+                && $subject->getValue() === serialize([2 => $this->items['item2'], 1 => $this->items['item1']]);
         };
 
-        $callThree = function($subject) use ($item1, $item2) {
-            $item2 = clone $item2;
-            $item2->setQuantity(20);
+        $callThree = function($subject) {
             return
-                is_callable([$subject, 'getName']) &&
-                $subject->getName() === $this->name &&
-                is_callable([$subject, 'getValue'])
-                && $subject->getValue() === serialize([1 => $item1, 2 => $item2])
-                ;
+                is_callable([$subject, 'getName'])
+                && $subject->getName() === $this->name
+                && is_callable([$subject, 'getValue'])
+                && $subject->getValue() === serialize([1 => $this->items['item1']]);
+        };
+
+        $callFour = function($subject) {
+            $item1 = clone $this->items['item1'];
+            $item1->setQuantity(20);
+            return
+                is_callable([$subject, 'getName'])
+                && $subject->getName() === $this->name
+                && is_callable([$subject, 'getValue'])
+                && $subject->getValue() === serialize([1 => $item1, 2 => $this->items['item2']]);
         };
 
         $headerMock = $this->getHeaderMock();
         $headerMock
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(4))
             ->method('setCookie')
             ->withConsecutive(
                 [$this->callback($callOne)],
                 [$this->callback($callTwo)],
-                [$this->callback($callThree)]
-            )
-        ;
+                [$this->callback($callThree)],
+                [$this->callback($callFour)]
+            );
 
-        $requestMock = $this->getRequestMock();
-        $requestMock->cookies = $bagMock;
-
+        $requestMock = $this->getRequestMockConfigured();
         $responseMock = $this->getResponseMock();
         $responseMock->headers = $headerMock;
-
         $storage = new CookieStorage($requestMock, $responseMock, $this->name);
 
-        $this->assertTrue($storage->add($item1));
-        $this->assertTrue($storage->add($item2));
+        $storage->add($this->items['item1']);
+        $storage->add($this->items['item1']);
+        $storage->add($this->items['item1']);
         // add Item with an id which already is added
         // TODO: test quantity is added correct
-        $this->assertTrue($storage->add($item3));
+        $storage->add($this->items['item3']);
     }
-
-
 
     public function testAll()
     {
-        $item1 = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
-        $item2 = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
-
-        $bagMock = $this->getBagMock();
-        $bagMock->expects($this->exactly(3))
-            ->method('get')
-            ->with($this->name)
-            ->willReturnOnConsecutiveCalls(
-                serialize([]),
-                serialize([1 => new \stdClass()]),
-                serialize([1 => $item1, 2 => $item2])
-            );
-
-        $requestMock = $this->getRequestMock();
-        $requestMock->cookies = $bagMock;
-
+        $requestMock = $this->getRequestMockConfigured();
         $responseMock = $this->getResponseMock();
-
         $storage = new CookieStorage($requestMock, $responseMock, $this->name);
 
-        $this->assertEquals(0, count($storage->all()));
+        $this->assertEquals(1, count($storage->all()));
+        $this->assertEquals(1, count($storage->all()));
         $this->assertEquals(0, count($storage->all()));
         $this->assertEquals(2, count($storage->all()));
     }
 
     public function testClear()
     {
-        $requestMock = $this->getRequestMock();
-
         $headerMock = $this->getHeaderMock();
         $headerMock
             ->expects($this->exactly(1))
             ->method('clearCookie')
-            ->with($this->name)
-        ;
+            ->with($this->name) ;
 
+        $requestMock = $this->getRequestMock();
         $responseMock = $this->getResponseMock();
         $responseMock->headers = $headerMock;
-
         $storage = new CookieStorage($requestMock, $responseMock, $this->name);
 
         $storage->clear();

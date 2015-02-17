@@ -78,7 +78,6 @@ class CookieStorage implements StorageInterface
             $cache[$newItemId] = $newItem;
         }
         $this->setCookie($cache);
-        return true;
     }
 
     public function all()
