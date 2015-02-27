@@ -337,7 +337,7 @@ class ItemTest extends \PHPUnit_Framework_TestCase
     public function quantityFailProvider()
     {
         return [
-            [5.8], ['Hello'], [null], [-10], [PHP_INT_MAX + 1],
+            [8.5], ['String'], [null], [-42], [PHP_INT_MAX + 1],
         ];
     }
 
