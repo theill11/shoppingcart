@@ -325,20 +325,13 @@ class ItemTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @param $quantity
-     * @dataProvider quantityFailProvider
+     * @dataProvider IdFailProvider
      * @expectedException \InvalidArgumentException
      */
     public function testQuantityFail($quantity)
     {
         $item = new Item();
         $item->setQuantity($quantity);
-    }
-
-    public function quantityFailProvider()
-    {
-        return [
-            [8.5], ['String'], [null], [-42], [PHP_INT_MAX + 1],
-        ];
     }
 
     /**
