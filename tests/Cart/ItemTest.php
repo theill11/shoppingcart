@@ -233,24 +233,6 @@ class ItemTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected['total'], $item->getTotal());
     }
 
-    public function constructByArrayProvider()
-    {
-        return [
-            [
-                ['id' => null, 'name' => null, 'quantity' => 0, 'price' => 0, 'total' => 0],
-                [],
-            ],
-            [
-                ['id' => 123, 'name' => 'Test item', 'quantity' => 10, 'price' => 75.25, 'total' => 752.5],
-                ['id' => 123, 'name' => 'Test item', 'quantity' => 10, 'price' => 75.25],
-            ],
-            [
-                ['id' => 123, 'name' => 'Test item', 'quantity' => 10, 'price' => 75.25, 'total' => 752.5],
-                ['id' => '123', 'name' => 'Test item', 'quantity' => '10', 'price' => '75.25'],
-            ],
-        ];
-    }
-
     /**
      * @param $id
      * @dataProvider idOkProvider
