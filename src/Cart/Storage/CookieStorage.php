@@ -8,7 +8,6 @@ namespace Theill11\Cart\Storage;
 
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Theill11\Cart\ItemInterface;
 
@@ -23,9 +22,9 @@ class CookieStorage extends Storage
     /** @var Response */
     protected $response;
 
-    public function __construct(RequestStack $requestStack, Response $response, $name = '_cart')
+    public function __construct(Request $request, Response $response, $name = '_cart')
     {
-        $this->request = $requestStack->getCurrentRequest();
+        $this->request = $request;
         $this->response = $response;
         $this->name = $name;
     }

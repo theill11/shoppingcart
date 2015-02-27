@@ -14,15 +14,6 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
 {
     public $name = '_test-name';
 
-    protected function getRequestStackMock($request)
-    {
-        $mock = $this->getMockBuilder('Symfony\Component\HttpFoundation\RequestStack')->getMock();
-        $mock->expects($this->once())
-            ->method('getCurrentRequest')
-            ->willReturn($request);
-        return $mock;
-    }
-
     protected function getRequestMock()
     {
         return $this->getMockBuilder('Symfony\Component\HttpFoundation\Request')->getMock();
@@ -75,18 +66,16 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
     public function testCanInstantiate()
     {
         $requestMock = $this->getRequestMock();
-        $requestStackMock = $this->getRequestStackMock($requestMock);
         $responseMock = $this->getResponseMock();
-        $storage = new CookieStorage($requestStackMock, $responseMock, $this->name);
+        $storage = new CookieStorage($requestMock, $responseMock, $this->name);
         $this->assertInstanceOf('Theill11\Cart\Storage\CookieStorage', $storage);
     }
 
     public function testGet()
     {
         $requestMock = $this->getRequestMockConfigured();
-        $requestStackMock = $this->getRequestStackMock($requestMock);
         $responseMock = $this->getResponseMock();
-        $storage = new CookieStorage($requestStackMock, $responseMock, $this->name);
+        $storage = new CookieStorage($requestMock, $responseMock, $this->name);
 
         $this->assertNull($storage->get(null));
         $this->assertNull($storage->get(0));
@@ -97,7 +86,6 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
     public function testRemove()
     {
         $requestMock = $this->getRequestMockConfigured();
-        $requestStackMock = $this->getRequestStackMock($requestMock);
         $responseMock = $this->getResponseMock();
         $headerMock = $this->getHeaderMock();
         $headerMock
@@ -105,7 +93,7 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
             ->method('setCookie')
             ->with($this->isInstanceOf('Symfony\Component\HttpFoundation\Cookie'));
         $responseMock->headers = $headerMock;
-        $storage = new CookieStorage($requestStackMock, $responseMock, $this->name);
+        $storage = new CookieStorage($requestMock, $responseMock, $this->name);
 
         $this->assertFalse($storage->remove(null));
         $this->assertFalse($storage->remove(1));
@@ -116,9 +104,8 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
     public function testHas()
     {
         $requestMock = $this->getRequestMockConfigured();
-        $requestStackMock = $this->getRequestStackMock($requestMock);
         $responseMock = $this->getResponseMock();
-        $storage = new CookieStorage($requestStackMock, $responseMock, $this->name);
+        $storage = new CookieStorage($requestMock, $responseMock, $this->name);
 
         $this->assertFalse($storage->has(null));
         $this->assertFalse($storage->has(1));
@@ -168,10 +155,9 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
             );
 
         $requestMock = $this->getRequestMockConfigured();
-        $requestStackMock = $this->getRequestStackMock($requestMock);
         $responseMock = $this->getResponseMock();
         $responseMock->headers = $headerMock;
-        $storage = new CookieStorage($requestStackMock, $responseMock, $this->name);
+        $storage = new CookieStorage($requestMock, $responseMock, $this->name);
 
         $storage->set($this->getItem(1));
         $storage->set($this->getItem(1));
@@ -225,10 +211,9 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
             );
 
         $requestMock = $this->getRequestMockConfigured();
-        $requestStackMock = $this->getRequestStackMock($requestMock);
         $responseMock = $this->getResponseMock();
         $responseMock->headers = $headerMock;
-        $storage = new CookieStorage($requestStackMock, $responseMock, $this->name);
+        $storage = new CookieStorage($requestMock, $responseMock, $this->name);
 
         $storage->add($this->getItem(1));
         $storage->add($this->getItem(1));
@@ -240,9 +225,8 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
     public function testAll()
     {
         $requestMock = $this->getRequestMockConfigured();
-        $requestStackMock = $this->getRequestStackMock($requestMock);
         $responseMock = $this->getResponseMock();
-        $storage = new CookieStorage($requestStackMock, $responseMock, $this->name);
+        $storage = new CookieStorage($requestMock, $responseMock, $this->name);
 
         $this->assertEquals(1, count($storage->all()));
         $this->assertEquals(1, count($storage->all()));
@@ -259,10 +243,9 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
             ->with($this->name) ;
 
         $requestMock = $this->getRequestMock();
-        $requestStackMock = $this->getRequestStackMock($requestMock);
         $responseMock = $this->getResponseMock();
         $responseMock->headers = $headerMock;
-        $storage = new CookieStorage($requestStackMock, $responseMock, $this->name);
+        $storage = new CookieStorage($requestMock, $responseMock, $this->name);
 
         $storage->clear();
     }
