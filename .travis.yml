@@ -24,5 +24,4 @@ script:
   - vendor/bin/phpunit --verbose --coverage-clover=build/logs/clover.xml --coverage-text
 
 after_script:
-  - env
   - ./upload_cc.sh
