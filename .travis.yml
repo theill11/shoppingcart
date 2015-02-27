@@ -15,9 +15,6 @@ matrix:
 # faster builds on new travis setup not using sudo
 sudo: false
 
-before_install:
-  - sudo apt-get update > /dev/null
-
 # cache vendor dirs
 cache:
   directories:

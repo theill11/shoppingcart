@@ -1,6 +1,6 @@
 # Shopping Cart
 
-Lightweight shopping cart library implemented in PHP. You can use session or cookies to persist the Cart and Items between requests.
+Lightweight shopping cart library implemented in PHP. You can use session or cookies to persist the Items between requests.
 
 [![Build Status](https://travis-ci.org/theill11/shoppingcart.svg)](https://travis-ci.org/theill11/shoppingcart)
 [![Dependency Status](https://www.versioneye.com/user/projects/54d788702bc790052a000058/badge.svg?style=flat)](https://www.versioneye.com/user/projects/54d788702bc790052a000058)
@@ -9,8 +9,8 @@ Lightweight shopping cart library implemented in PHP. You can use session or coo
 [![Code Climate](https://codeclimate.com/github/theill11/shoppingcart/badges/gpa.svg)](https://codeclimate.com/github/theill11/shoppingcart)
 
 [![Latest Stable Version](https://poser.pugx.org/theill11/shoppingcart/v/stable.svg)](https://packagist.org/packages/theill11/shoppingcart)
-[![Total Downloads](https://poser.pugx.org/theill11/shoppingcart/downloads.svg)](https://packagist.org/packages/theill11/shoppingcart)
 [![Latest Unstable Version](https://poser.pugx.org/theill11/shoppingcart/v/unstable.svg)](https://packagist.org/packages/theill11/shoppingcart)
+[![Total Downloads](https://poser.pugx.org/theill11/shoppingcart/downloads.svg)](https://packagist.org/packages/theill11/shoppingcart)
 [![License](https://poser.pugx.org/theill11/shoppingcart/license.svg)](https://packagist.org/packages/theill11/shoppingcart)
 
 ## Installation
