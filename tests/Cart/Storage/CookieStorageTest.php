@@ -14,16 +14,6 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
 {
     public $name = '_test-name';
 
-    protected $items = [];
-
-    protected function setUp()
-    {
-        parent::setUp();
-        $this->items['item1'] = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
-        $this->items['item2'] = new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
-        $this->items['item3'] = new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
-    }
-
     protected function getRequestStackMock($request)
     {
         $mock = $this->getMockBuilder('Symfony\Component\HttpFoundation\RequestStack')->getMock();
@@ -46,10 +36,10 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
             ->method('get')
             ->with($this->name)
             ->willReturnOnConsecutiveCalls(
-                serialize([1 => $this->items['item1']]),
-                serialize([2 => $this->items['item2']]),
+                serialize([1 => $this->getItem(1)]),
+                serialize([2 => $this->getItem(2)]),
                 serialize([1 => new \stdClass()]),
-                serialize([1 => $this->items['item1'], 2 => $this->items['item2']])
+                serialize([1 => $this->getItem(1), 2 => $this->getItem(2)])
             );
         $mock = $this->getMockBuilder('Symfony\Component\HttpFoundation\Request')->getMock();
         $mock->cookies = $bagMock;
@@ -69,6 +59,17 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
     protected function getHeaderMock()
     {
         return $this->getMockBuilder('Symfony\Component\HttpFoundation\ResponseHeaderBag')->getMock();
+    }
+
+    protected function getItem($id)
+    {
+        switch ($id){
+            case 1:
+                return new Item(['id' => 1, 'name' => 'Test item 1', 'quantity' => 10, 'price' => 123.45]);
+            case 2:
+                return new Item(['id' => 2, 'name' => 'Test item 2', 'quantity' => 10, 'price' => 123.45]);
+        }
+        return false;
     }
 
     public function testCanInstantiate()
@@ -131,28 +132,28 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
             return
                 $subject instanceof Cookie
                 && $subject->getName() === $this->name
-                && $subject->getValue() === serialize([1 => $this->items['item1']]);
+                && $subject->getValue() === serialize([1 => $this->getItem(1)]);
         };
 
         $callTwo = function($subject) {
             return
                 $subject instanceof Cookie
                 && $subject->getName() === $this->name
-                && $subject->getValue() === serialize([2 => $this->items['item2'], 1 => $this->items['item1']]);
+                && $subject->getValue() === serialize([2 => $this->getItem(2), 1 => $this->getItem(1)]);
         };
 
         $callThree = function($subject) {
             return
                 $subject instanceof Cookie
                 && $subject->getName() === $this->name
-                && $subject->getValue() === serialize([1 => $this->items['item1']]);
+                && $subject->getValue() === serialize([1 => $this->getItem(1)]);
         };
 
         $callFour = function($subject) {
             return
                 $subject instanceof Cookie
                 && $subject->getName() === $this->name
-                && $subject->getValue() === serialize([1 => $this->items['item1'], 2 => $this->items['item2']]);
+                && $subject->getValue() === serialize([1 => $this->getItem(1), 2 => $this->getItem(2)]);
         };
 
         $headerMock = $this->getHeaderMock();
@@ -172,16 +173,16 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
         $responseMock->headers = $headerMock;
         $storage = new CookieStorage($requestStackMock, $responseMock, $this->name);
 
-        $storage->set($this->items['item1']);
-        $storage->set($this->items['item1']);
-        $storage->set($this->items['item1']);
-        $storage->set($this->items['item3']);
+        $storage->set($this->getItem(1));
+        $storage->set($this->getItem(1));
+        $storage->set($this->getItem(1));
+        $storage->set($this->getItem(1));
     }
 
     public function testAdd()
     {
         $callOne = function ($subject) {
-            $item1 = clone $this->items['item1'];
+            $item1 = $this->getItem(1);
             $item1->setQuantity(20);
             return
                 $subject instanceof Cookie
@@ -193,23 +194,23 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
             return
                 $subject instanceof Cookie
                 && $subject->getName() === $this->name
-                && $subject->getValue() === serialize([2 => $this->items['item2'], 1 => $this->items['item1']]);
+                && $subject->getValue() === serialize([2 => $this->getItem(2), 1 => $this->getItem(1)]);
         };
 
         $callThree = function($subject) {
             return
                 $subject instanceof Cookie
                 && $subject->getName() === $this->name
-                && $subject->getValue() === serialize([1 => $this->items['item1']]);
+                && $subject->getValue() === serialize([1 => $this->getItem(1)]);
         };
 
         $callFour = function($subject) {
-            $item1 = clone $this->items['item1'];
+            $item1 = $this->getItem(1);
             $item1->setQuantity(20);
             return
                 $subject instanceof Cookie
                 && $subject->getName() === $this->name
-                && $subject->getValue() === serialize([1 => $item1, 2 => $this->items['item2']]);
+                && $subject->getValue() === serialize([1 => $item1, 2 => $this->getItem(2)]);
         };
 
         $headerMock = $this->getHeaderMock();
@@ -229,12 +230,11 @@ class CookieStorageTest extends \PHPUnit_Framework_TestCase
         $responseMock->headers = $headerMock;
         $storage = new CookieStorage($requestStackMock, $responseMock, $this->name);
 
-        $storage->add($this->items['item1']);
-        $storage->add($this->items['item1']);
-        $storage->add($this->items['item1']);
+        $storage->add($this->getItem(1));
+        $storage->add($this->getItem(1));
+        $storage->add($this->getItem(1));
         // add Item with an id which already is added
-        // TODO: test quantity is added correct
-        $storage->add($this->items['item3']);
+        $storage->add($this->getItem(1));
     }
 
     public function testAll()
