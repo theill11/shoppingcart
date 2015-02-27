@@ -25,4 +25,4 @@ script:
 
 after_script:
   - env
-  - ./upload.sh
+  - ./upload_cc.sh
