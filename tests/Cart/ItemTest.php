@@ -221,7 +221,7 @@ class ItemTest extends \PHPUnit_Framework_TestCase
     /**
      * @param $expected
      * @param $options
-     * @dataProvider constructByArrayProvider
+     * @dataProvider configureOkProvider
      */
     public function testConstructByArray($expected, $options)
     {
