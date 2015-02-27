@@ -15,12 +15,6 @@ matrix:
 # faster builds on new travis setup not using sudo
 sudo: false
 
-# cache vendor dirs
-cache:
-  directories:
-    - vendor
-    - $HOME/.composer/cache
-
 install:
   - travis_retry composer selfupdate
   - travis_retry composer install --prefer-dist --no-interaction
