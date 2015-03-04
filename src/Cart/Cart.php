@@ -6,7 +6,7 @@
 
 namespace Theill11\Cart;
 
-use Theill11\Cart\Storage\StorageInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Class Cart
@@ -15,27 +15,30 @@ use Theill11\Cart\Storage\StorageInterface;
  */
 class Cart implements \Countable, \ArrayAccess
 {
-    /** @var ItemInterface[] */
-    protected $items = [];
 
-    /** @var StorageInterface */
-    protected $storage;
+    /** @var SessionInterface */
+    protected $session;
+
+    /** @var string  */
+    protected $key;
 
     /**
-     * @param Storage\StorageInterface $storage
+     * @param SessionInterface $session
+     * @param string $key
      */
-    public function __construct(StorageInterface $storage)
+    public function __construct(SessionInterface $session, $key = '_cart')
     {
-        $this->storage = $storage;
+        $this->session = $session;
+        $this->key = $key;
     }
 
     /**
-     * @param $id int Id of the Item to retrieve
+     * @param int $id Id of the Item to retrieve
      * @return Item|null The given Item or null if not found.
      */
     public function getItem($id)
     {
-        return $this->storage->get($id);
+        return $this->session->get($this->key . '/' . $id);
     }
 
     /**
@@ -44,19 +47,24 @@ class Cart implements \Countable, \ArrayAccess
      */
     public function getItems()
     {
-        return $this->storage->all();
+        return $this->session->get($this->key, []);
     }
 
     /**
      * Adds an Item to the cart
-     * @param ItemInterface $item The Item to add
+     * @param ItemInterface $newItem The Item to add
      */
-    public function addItem(ItemInterface $item)
+    public function addItem(ItemInterface $newItem)
     {
-        if ($item->isValid() === false) {
-            throw new \InvalidArgumentException('The item is not valid');
+        $newItemId = $newItem->getId();
+        if ($this->session->has($this->key . '/' . $newItemId)) {
+            /** @var \Theill11\Cart\ItemInterface $oldItem */
+            $oldItem = $this->session->get($this->key . '/' . $newItemId);
+            $newQty = $oldItem->getQuantity() + $newItem->getQuantity();
+            $newItem->setQuantity($newQty);
         }
-        $this->storage->add($item);
+
+        $this->setItem($newItem);
     }
 
     /**
@@ -72,11 +80,15 @@ class Cart implements \Countable, \ArrayAccess
 
     /**
      * Sets an Item, if there is all ready an Item with same id, it will be replaced.
-     * @param $item ItemInterface
+     * @param ItemInterface $item
      */
     public function setItem(ItemInterface $item)
     {
-        $this->storage->set($item);
+        if ($item->isValid() === false) {
+            throw new \InvalidArgumentException('The item is not valid');
+        }
+
+        $this->session->set($this->key . '/' . $item->getId(), $item);
     }
 
     /**
@@ -85,26 +97,29 @@ class Cart implements \Countable, \ArrayAccess
      */
     public function setItems(array $items)
     {
-        $this->clear();
-        $this->addItems($items);
+        foreach ($items as $item) {
+            $this->setItem($item);
+        }
     }
 
     /**
      * Removes an Item from the cart
-     * @param $id int Id of the Item to remove
+     *
+     * @param int $id Id of the Item to remove
+     * @return mixed The removed Item or null if it does not exist
      */
     public function removeItem($id)
     {
-        $this->storage->remove($id);
+        return $this->session->remove($this->key . '/' . $id);
     }
 
     /**
-     * @param $id int id of the Item to check
+     * @param int $id id of the Item to check
      * @return bool whether the Item is added to the card
      */
     public function hasItem($id)
     {
-        return $this->storage->has($id);
+        return $this->session->has($this->key . '/' . $id);
     }
 
     /**
@@ -112,7 +127,7 @@ class Cart implements \Countable, \ArrayAccess
      */
     public function clear()
     {
-        $this->storage->clear();
+        $this->session->remove($this->key);
     }
 
     /**

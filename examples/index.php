@@ -3,36 +3,45 @@
 require_once('../vendor/autoload.php');
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Attribute\NamespacedAttributeBag;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Theill11\Cart\Cart;
 use Theill11\Cart\Item;
-use Theill11\Cart\Storage\CookieStorage;
-use Theill11\Cart\Storage\SessionStorage;
 
-// initialize request/response
-$request = Request::createFromGlobals();
-$response = new Response();
+// use default PHP builtin file-storage
+$handler = new \Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeFileSessionHandler();
 
-// setup storage
-if (!true) {
-    // use session to store the items
-    $session = new Session();
-    $request->setSession($session);
-    $storage = new SessionStorage($session);
-} else {
-    // or use cookies
-    $storage = new CookieStorage($request, $response);
-}
-// create the Cart
-$cart = new Cart($storage);
+// use memcache as storage
+//$handler = new \Symfony\Component\HttpFoundation\Session\Storage\Handler\MemcacheSessionHandler(new Memcache());
 
-// test data
+// use MongoDb as storage
+//$handler = new \Symfony\Component\HttpFoundation\Session\Storage\Handler\MongoDbSessionHandler(new MongoClient(), []);
+
+// use PDO as storage (mysql, sqlite, pgsql..)
+//$handler = new \Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler(new PDO());
+
+// setup Storage
+$storage = new NativeSessionStorage([], $handler);
+
+// NamespacedAttributeBag is required
+$attributes = new NamespacedAttributeBag();
+
+// setup Session
+$session = new Session($storage, $attributes);
+
+// setup Cart
+$cart = new Cart($session);
+
+// test data to mimic product catalog
 $products[1] = ['id' => '1', 'name' => 'Test item one', 'price' => '10.00'];
 $products[2] = ['id' => '2', 'name' => 'Test item two', 'price' => '100.00'];
 $products[3] = ['id' => '3', 'name' => 'Test item three', 'price' => '50.57'];
 $products[4] = ['id' => '4', 'name' => 'Test item four', 'price' => '0.25'];
 $products[5] = ['id' => '5', 'name' => 'Test item five', 'price' => '756.00'];
+
+// initialize request
+$request = Request::createFromGlobals();
 
 // handle incoming request
 if ($request->isMethod('post')) {
@@ -68,10 +77,7 @@ if ($request->isMethod('post')) {
             break;
     }
     // simple refresh
-    $response->setStatusCode(303);
-    $response->headers->set('Location', 'index.php');
-    $response->prepare($request);
-    $response->send();
+    header('Location: index.php');
     exit();
 }
 
@@ -92,10 +98,11 @@ if ($request->isMethod('post')) {
 <body>
 <div class="container">
     <h1>Simple Cart Example</h1>
-    <form action="" method="post">
+    <form action="" method="post" class="pull-right">
         <input type="hidden" name="action" value="clear"/>
         <input type="submit" value="Clear cart" class="btn btn-danger"/>
     </form>
+    <h2>Cart</h2>
     <table class="table table-bordered table-striped">
         <thead>
         <tr>
