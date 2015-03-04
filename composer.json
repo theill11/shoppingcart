@@ -16,6 +16,9 @@
     "issues": "https://github.com/Theill11/Shoppingcart/issues",
     "source": "https://github.com/Theill11/Shoppingcart"
   },
+  "config": {
+    "preferred-install": "dist"
+  },
   "minimum-stability": "stable",
   "require": {
     "php": ">=5.4.0",

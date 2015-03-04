@@ -1,6 +1,7 @@
 # Shopping Cart
 
-Lightweight shopping cart library implemented in PHP. You can use session or cookies to persist the Items between requests.
+Lightweight shopping cart library implemented in PHP. For storage it uses Symfony Session components, where you can switch between several storage handlers
+or just use native session handling.
 
 [![Build Status](https://travis-ci.org/theill11/shoppingcart.svg)](https://travis-ci.org/theill11/shoppingcart)
 [![Dependency Status](https://www.versioneye.com/user/projects/54d788702bc790052a000058/badge.svg?style=flat)](https://www.versioneye.com/user/projects/54d788702bc790052a000058)
@@ -36,7 +37,7 @@ to the ```require``` section of your `composer.json` file.
 
 ## Usage
 
-TODO: Write usage instructions
+See [examples/index.php](examples/index.php)
 
 ## Contributing
 
